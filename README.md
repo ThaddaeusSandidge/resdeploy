@@ -1,19 +1,3 @@
-### About the Project
-
-This project is the culmination of my work in my Data Science Project Course, and includes an interactive data web app built on the Django framework.
-
-# Key Technologies
-
-Ma
-
-. The emphasis of this project was to create interactive data dashboards that are informative and usable
-
-### Key Project Components
-
-## Res Predict
-
-This
-
 # Res Tool
 
 <table>
