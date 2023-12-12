@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Res Tool</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+      crossorigin="anonymous"
+    />
+
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+  </head>
+  <body style="min-height: 100vh">
+    <div
+      class="container-fluid text-center w-full mx-0 justify-content-center h-100"
+      style="min-height: 100vh"
+    >
+      <div class="row h-100" style="min-height: 100vh">
+        <div class="col-4 bg-light px-4 border-start-0">
+          <div class="d-flex justify-content-start w-100">
+            <a class="mt-1" href="/">
+              <button type="button" class="btn btn-link">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  fill="currentColor"
+                  class="bi bi-arrow-left"
+                  viewBox="0 0 16 16"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"
+                  />
+                </svg>
+                Back to Home
+              </button></a
+            >
+          </div>
+          <h1 class="mb-4 mt-2 bold">Res Tool - Predict</h1>
+          <div class="form-group">
+            <label for="state_select"
+              >Select a state to see available stations.</label
+            >
+            <select id="stn_select" name="selected_stn" class="form-control">
+              <option value="-1" disabled selected>Select a Station</option>
+              {% for i in stations %}
+              <option value="{{ i.id }}">{{ i.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <hr />
+          <div class="form-group d-none" id="model_select">
+            <label for="model_id">Select a model to see the prediction.</label>
+            <select id="model_id" name="selected_state" class="form-control">
+              <option value="-1" disabled selected>Select a Model</option>
+              {% for i in models %}
+              <option value="{{ i.0 }}">{{ i.1 }}</option>
+              {% endfor %}
+            </select>
+            <span id="gp-warning" class="text-muted text-sm mt-2 d-none"
+              >Note: Guassian Proccess requires longer training period.</span
+            >
+          </div>
+        </div>
+        <div class="col-8 h-full">
+          <div
+            class="d-flex align-items-center justify-content-center"
+            id="no_data"
+          >
+            <div class="text-center">
+              <p class="mt-5">
+                Select a station and model to see the prediction for the
+                location.
+              </p>
+            </div>
+          </div>
+          <div class="container text-center mt-1">
+            <div class="row justify-content-center">
+              <div class="" id="res_curr"></div>
+            </div>
+            <div class="row justify-content-center mt-1 w-100">
+              <div class="" id="res_model"></div>
+              <div
+                class="spinner-border text-primary d-none"
+                id="loading-spinner"
+                role="status"
+                style="width: 3rem; height: 3rem"
+              >
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <script>
+      $(document).ready(function () {
+        $("#stn_select").change(function () {
+          var reservoirId = $("#stn_select").val();
+          var reservoirText = $("#stn_select option:selected").text();
+          console.log(reservoirText);
+          console.log(reservoirId);
+          $.ajax({
+            type: "GET",
+            url: '{% url "res_pred_get_current" %}',
+            contentType: "application/json",
+            data: {
+              res_id: reservoirId,
+              res_name: reservoirText,
+            },
+            success: function (data) {
+              if (data.hasOwnProperty("no_data")) {
+                // If "no_data" key is present in the response, there's no data
+                $("#no_data p").removeClass("d-none");
+                $("#no_data p").text(data.no_data); // Update the text in the div
+                $("#res_curr").addClass("d-none"); // Hide the divs with data
+              } else {
+                // If there's data, update the divs with the data
+                $("#no_data p").addClass("d-none");
+                $("#res_curr").html(data.curr_div);
+                $("#res_curr").removeClass("d-none");
+                $("#model_select").removeClass("d-none"); // Show the divs with data
+              }
+            },
+          });
+        });
+      });
+      $(document).ready(function () {
+        $("#model_id").change(function () {
+          var reservoirId = $("#stn_select").val();
+          var reservoirText = $("#stn_select option:selected").text();
+          var modelId = $("#model_id").val();
+          var modelText = $("#model_id option:selected").text();
+          if (modelId == "gp") {
+            $("#gp-warning").removeClass("d-none");
+          } else {
+            $("#gp-warning").addClass("d-none");
+          }
+          $("#loading-spinner").removeClass("d-none");
+          $("#res_model").addClass("d-none");
+          $.ajax({
+            type: "GET",
+            url: '{% url "res_get_model" %}',
+            contentType: "application/json",
+            data: {
+              res_id: reservoirId,
+              res_name: reservoirText,
+              model_id: modelId,
+              model_name: modelText,
+            },
+            success: function (data) {
+              // If there's data, update the divs with the data
+              $("#res_model").html(data.predict_div);
+              $("#res_model").removeClass("d-none");
+              $("#loading-spinner").addClass("d-none");
+              // Show the divs with data
+            },
+          });
+        });
+      });
+    </script>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>
