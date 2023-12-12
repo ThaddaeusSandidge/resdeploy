@@ -183,6 +183,7 @@ def res_get_model(request):
         for trace in bar_fig.data:
             fig.add_trace(trace, row=2, col=1)
 
+        mape = mape * 100
         # Update layout and show the figure
         fig.add_annotation(text=f'MAE: {mae:.2f}', xref='paper', yref='paper',
                    x=0.98, y=1, showarrow=False, font=dict(size=15), bgcolor='white')

@@ -67,7 +67,8 @@
               {% endfor %}
             </select>
             <span id="gp-warning" class="text-muted text-sm mt-2 d-none"
-              >Note: Guassian Proccess requires longer training period.</span
+              >Note: Pardon the delay with the ML Models, I am hosting this site
+              using free tiers and have low computational power!</span
             >
           </div>
         </div>
@@ -142,11 +143,8 @@
           var reservoirText = $("#stn_select option:selected").text();
           var modelId = $("#model_id").val();
           var modelText = $("#model_id option:selected").text();
-          if (modelId == "gp") {
-            $("#gp-warning").removeClass("d-none");
-          } else {
-            $("#gp-warning").addClass("d-none");
-          }
+
+          $("#gp-warning").removeClass("d-none");
           $("#loading-spinner").removeClass("d-none");
           $("#res_model").addClass("d-none");
           $.ajax({
@@ -164,6 +162,7 @@
               $("#res_model").html(data.predict_div);
               $("#res_model").removeClass("d-none");
               $("#loading-spinner").addClass("d-none");
+              $("#gp-warning").addClass("d-none");
               // Show the divs with data
             },
           });
