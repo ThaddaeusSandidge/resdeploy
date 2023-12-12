@@ -17,7 +17,7 @@ Here is a working live demo : https://res-tool.onrender.com
 ### Res Predict
 
 Select a machine learning model to predict hindcasted reservoir levels for San Vicente Reservoir and El Capitan Reservoir and observe the difference in model prediction accuracies.
-Models Used
+Models Used:
 
 - Neural Network
 - Gaussian Process
@@ -26,7 +26,7 @@ Models Used
 - Random Forest
 - Nearest Neighbor
 
-# Neural Network Model saw results of up to 99.8% accuracy!
+#### Neural Network Model saw results of up to 99.8% accuracy!
 
 ### Res Select
 
